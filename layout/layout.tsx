@@ -9,6 +9,7 @@ const layout = (props: any) => {
                 <title>Checkout</title>
                 <link rel="icon" href="/favicon.ico" />
                 <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet"></link>
+                <script src="https://js.stripe.com/v3/"></script>
             </Head>
             <div className="container bg-gray-50">
                 {props.children}

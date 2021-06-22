@@ -5,6 +5,9 @@ import axios from 'axios'
 import constants from '../constants';
 
 
+declare var Stripe;
+
+
 export default function Home() {
   const router = useRouter();
   const {code} = router.query;
@@ -43,7 +46,7 @@ export default function Home() {
           setQuantities(data.products.map(p => (
             {
               product_id: p.id,
-              quantity: 0
+              quantity: 1
             }
           )))
         }
@@ -86,8 +89,13 @@ export default function Home() {
         zip,
         products: quantities
       })
-      console.log(data);
-    
+
+      const stripe = new Stripe(constants.stripe_key);
+
+      //ridireziono al checkout
+      stripe.redirectToCheckout({
+        sessionId: data.id
+      });
   }
 
 
@@ -115,8 +123,8 @@ export default function Home() {
                 <p className="p-1">${product.price}</p>
                 </div>
                 <div className="flex p-1 justify-between items-center">
-                  <h6 className="font-medium mr-1">Quantity: </h6>
-                  <input onChange={(e) => handleChange(+e.target.value, product.id)} className="w-16 px-1 py-1 text-gray-700 bg-gray-200 rounded" type="number" name="quantity" id="quantity" min="0" defaultValue="0" />
+                  <h6 className="font-medium mr-1">Change quantity: </h6>
+                  <input onChange={(e) => handleChange(+e.target.value, product.id)} className="w-16 px-1 py-1 text-gray-700 bg-gray-200 rounded" type="number" name="quantity" id="quantity" min="1" defaultValue="1" />
                 </div>
                 <div className="border-b bg-gray-200"></div>
               </div>
