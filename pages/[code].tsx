@@ -1,15 +1,15 @@
-import Head from 'next/head'
+import Layout from '../layout/layout'
+import { useRouter } from 'next/router';
 
 export default function Home() {
-  return (
-    <div className="flex flex-col items-center justify-center min-h-screen py-2">
-      <Head>
-        <title>Checkout</title>
-        <link rel="icon" href="/favicon.ico" />
-        <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet"></link>
-      </Head>
+  const router = useRouter();
+  const {code} = router.query;
 
-      <main className="flex flex-col items-center justify-center w-full flex-1 px-10 text-center bg-gray-50 ">
+  console.log(code);
+
+  return (
+    <Layout>
+      <main className="flex flex-col items-center justify-center w-full flex-1 px-10 text-center">
         <div>
         <h1 className="text-6xl font-bold">
           Welcome
@@ -81,10 +81,6 @@ export default function Home() {
           </div>
         </div>
       </main>
-
-      <footer className="flex items-center justify-center w-full h-24 border-t">
-      <p>Footer</p>
-      </footer>
-    </div>
+      </Layout>
   )
 }
