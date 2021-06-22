@@ -1,6 +1,6 @@
 import Layout from '../layout/layout'
 import { useRouter } from 'next/router'
-import { useEffect, useState } from 'react'
+import { SyntheticEvent, useEffect, useState } from 'react'
 import axios from 'axios'
 import constants from '../constants';
 
@@ -10,7 +10,7 @@ export default function Home() {
   const {code} = router.query;
   const [user, setUser] = useState(null);
   const [products, setProducts] = useState([]);
-  let arr = [];
+  const [quantities, setQuantities] = useState([]);
 
 
   useEffect(() => {
@@ -21,10 +21,37 @@ export default function Home() {
            console.log(data);
           setUser(data.user);
           setProducts(data.products);
+          setQuantities(data.products.map(p => (
+            {
+              product_id: p.id,
+              quantity: 0
+            }
+          )))
         }
      )();
    }
   }, [code])
+
+  const handleChange = (quantity: number, id: number) => {
+     setQuantities(quantities.map(q => {
+        if(q.product_id === id) {
+          return {
+            ...q,
+            quantity
+          }
+        }
+        return q;
+      }))
+  }
+
+  const total = () => {
+
+    return quantities.reduce((s, q) => {
+      const product = products.find(p => p.id === q.product_id);
+      return s + q.quantity * product.price;
+       
+    }, 0)
+  }
 
 
   return (
@@ -34,7 +61,7 @@ export default function Home() {
         <h1 className="text-6xl font-bold">
           Welcome
         </h1>
-          <p>{user?.first_name} {user?.last_name} has invited you to buy these products!</p>
+          <p>{user?.first_name} {user?.last_name}, has invited you to buy these products!</p>
         </div>
         <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 m-4 mx-auto p-10 rounded shadow-xl bg-white">
         <div className="md:row-start-1 md:row-end-2 md:col-start-2 md:col-end-3 md:ml-4 mb-8 md:mb-0 bg-white">
@@ -42,8 +69,8 @@ export default function Home() {
             <div className="rounded shadow-xl">
               {products.map(product => {
                 return (
-              <div key={product.id}>
-                <div className="flex justify-between items-center p-2">
+              <div key={product.id} className="p-2">
+                <div className="flex justify-between items-center">
                   <div className="p-1 flex flex-col items-start text-left">
                   <h6 className="font-medium">{product.title}</h6>
                 <span><small>{product.description}</small></span>
@@ -51,16 +78,16 @@ export default function Home() {
                 <p className="p-1">${product.price}</p>
                 </div>
                 <div className="flex p-1 justify-between items-center">
-                  <h6 className="font-normal mr-1">Quantity: </h6>
-                  <input className="w-16 px-1 py-1 text-gray-700 bg-gray-200 rounded" type="number" name="quantity" id="quantity" min="0" />
+                  <h6 className="font-medium mr-1">Quantity: </h6>
+                  <input onChange={(e) => handleChange(+e.target.value, product.id)} className="w-16 px-1 py-1 text-gray-700 bg-gray-200 rounded" type="number" name="quantity" id="quantity" min="0" defaultValue="0" />
                 </div>
                 <div className="border-b bg-gray-200"></div>
               </div>
                 )
               })}           
               <div className="flex justify-between p-2">
-                <p>Total</p>
-              <p>tot$</p>
+                <p>Total (USD)</p>
+              <p className="font-semibold">${total()}</p>
               </div>
             </div>
           </div>
