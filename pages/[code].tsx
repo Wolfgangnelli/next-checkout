@@ -1,11 +1,31 @@
 import Layout from '../layout/layout'
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/router'
+import { useEffect, useState } from 'react'
+import axios from 'axios'
+import constants from '../constants';
+
 
 export default function Home() {
   const router = useRouter();
   const {code} = router.query;
+  const [user, setUser] = useState(null);
+  const [products, setProducts] = useState([]);
+  let arr = [];
 
-  console.log(code);
+
+  useEffect(() => {
+   if(code !== undefined) {
+     (
+        async () => {
+          const {data} = await axios.get(`${constants.endpoint}/links/${code}`);
+           console.log(data);
+          setUser(data.user);
+          setProducts(data.products);
+        }
+     )();
+   }
+  }, [code])
+
 
   return (
     <Layout>
@@ -14,24 +34,33 @@ export default function Home() {
         <h1 className="text-6xl font-bold">
           Welcome
         </h1>
-          <p> has invited you to buy these products!</p>
+          <p>{user?.first_name} {user?.last_name} has invited you to buy these products!</p>
         </div>
         <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 m-4 mx-auto p-10 rounded shadow-xl bg-white">
         <div className="md:row-start-1 md:row-end-2 md:col-start-2 md:col-end-3 md:ml-4 mb-8 md:mb-0 bg-white">
           <p className="text-gray-800 font-medium">Products</p>
             <div className="rounded shadow-xl">
-              <div className="flex justify-between p-2">
-                <div>
-                <p>Product #n</p>
-              <span><small>Description</small></span>
+              {products.map(product => {
+                return (
+              <div key={product.id}>
+                <div className="flex justify-between items-center p-2">
+                  <div className="p-1 flex flex-col items-start text-left">
+                  <h6 className="font-medium">{product.title}</h6>
+                <span><small>{product.description}</small></span>
+                  </div>
+                <p className="p-1">${product.price}</p>
                 </div>
-              <p>1$</p>
+                <div className="flex p-1 justify-between items-center">
+                  <h6 className="font-normal mr-1">Quantity: </h6>
+                  <input className="w-16 px-1 py-1 text-gray-700 bg-gray-200 rounded" type="number" name="quantity" id="quantity" min="0" />
+                </div>
+                <div className="border-b bg-gray-200"></div>
               </div>
-              
-              <div className="border-b bg-gray-200"></div>
+                )
+              })}           
               <div className="flex justify-between p-2">
                 <p>Total</p>
-                <p>20$</p>
+              <p>tot$</p>
               </div>
             </div>
           </div>
